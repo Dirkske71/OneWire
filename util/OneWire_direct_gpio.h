@@ -172,7 +172,7 @@ IO_REG_TYPE directRead(IO_REG_TYPE pin)
 #else // plain ESP32
     if ( pin < 32 )
         return (GPIO.in >> pin) & 0x1;
-    else if ( pin < 46 )
+    else
         return (GPIO.in1.val >> (pin - 32)) & 0x1;
 #endif
 
@@ -187,7 +187,7 @@ void directWriteLow(IO_REG_TYPE pin)
 #else // plain ESP32
     if ( pin < 32 )
         GPIO.out_w1tc = ((uint32_t)1 << pin);
-    else if ( pin < 46 )
+    else
         GPIO.out1_w1tc.val = ((uint32_t)1 << (pin - 32));
 #endif
 }
@@ -200,7 +200,7 @@ void directWriteHigh(IO_REG_TYPE pin)
 #else // plain ESP32
     if ( pin < 32 )
         GPIO.out_w1ts = ((uint32_t)1 << pin);
-    else if ( pin < 46 )
+    else
         GPIO.out1_w1ts.val = ((uint32_t)1 << (pin - 32));
 #endif
 }
@@ -237,7 +237,7 @@ void directModeOutput(IO_REG_TYPE pin)
 #if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6
     GPIO.enable_w1ts.val = ((uint32_t)1 << (pin));
 #else
-    if ( digitalPinIsValid(pin) /* && pin <= 33 */ ) // Use Any In/Out pins 
+    if ( digitalPinIsValid(pin) ) // Use Any In/Out pins (VIGO fork: fixed for ESP32-S3 GPIO 34-48)
     {
 #if ESP_IDF_VERSION_MAJOR < 4      // IDF 3.x ESP32/PICO-D4
         uint32_t rtc_reg(rtc_gpio_desc[pin].reg);
@@ -251,7 +251,7 @@ void directModeOutput(IO_REG_TYPE pin)
         // Output
         if ( pin < 32 )
             GPIO.enable_w1ts = ((uint32_t)1 << pin);
-        else // already validated to pins <= 33
+        else
             GPIO.enable1_w1ts.val = ((uint32_t)1 << (pin - 32));
     }
 #endif
